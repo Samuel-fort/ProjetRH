@@ -1,2 +1,6 @@
 user postgre : rh_user
 mdp : user
+
+http://127.0.0.1:8000
+Filament sur http://127.0.0.1:8000/admin
+cv online et cv confirmation
