@@ -95,6 +95,11 @@ set_env DB_USERNAME "$DB_USER"
 set_env DB_PASSWORD "\"$ESC\""
 unset DB_PASS ESC
 php artisan config:clear >/dev/null
+rm -f database/database.sqlite
+if ! php artisan db:show 2>/dev/null | grep -qi "pgsql\|postgres"; then
+  echo -e "$ERR Laravel n'utilise pas PostgreSQL. Verifie les lignes DB_* de .env puis relance ./install.sh"
+  exit 1
+fi
 echo -e "$OK .env configure pour PostgreSQL"
 
 php artisan migrate --force --no-interaction
