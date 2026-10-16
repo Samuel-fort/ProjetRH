@@ -1,0 +1,67 @@
+sirh/
+├── app/
+│   ├── Models/
+│   │   ├── Besoin/                 # Bloc 1
+│   │   │   ├── Departement.php
+│   │   │   ├── Poste.php
+│   │   │   ├── DemandeRecrutement.php
+│   │   │   └── Validation.php
+│   │   ├── Recrutement/            # Bloc 2
+│   │   │   ├── OffreEmploi.php
+│   │   │   ├── Candidat.php
+│   │   │   ├── Candidature.php
+│   │   │   ├── Entretien.php
+│   │   │   └── EvaluationCandidat.php
+│   │   ├── Embauche/               # Bloc 3
+│   │   │   ├── PropositionEmbauche.php
+│   │   │   └── Employe.php
+│   │   ├── Contrat/                # Bloc 4
+│   │   │   ├── Contrat.php
+│   │   │   ├── Affectation.php
+│   │   │   ├── Onboarding.php
+│   │   │   ├── OnboardingTache.php
+│   │   │   └── Document.php
+│   │   └── User.php
+│   │
+│   ├── Enums/                      # statuts : StatutDemande, TypeContrat...
+│   ├── Services/                   # logique métier / workflows
+│   │   ├── Besoin/
+│   │   ├── Recrutement/
+│   │   ├── Embauche/
+│   │   └── Contrat/
+│   ├── Policies/                   # qui a le droit de faire quoi (rôles)
+│   ├── Observers/                  # audit, logs automatiques
+│   ├── Notifications/
+│   ├── Http/Controllers/           # si vous faites des pages hors Filament
+│   └── Filament/
+│       └── Resources/              # écrans d'admin, un dossier par bloc
+│           ├── Besoin/
+│           ├── Recrutement/
+│           ├── Embauche/
+│           └── Contrat/
+│
+├── database/
+│   ├── migrations/                 # toutes ici (Laravel l'impose)
+│   ├── factories/
+│   └── seeders/
+│       ├── DatabaseSeeder.php
+│       ├── BesoinSeeder.php
+│       ├── RecrutementSeeder.php
+│       ├── EmbaucheSeeder.php
+│       └── ContratSeeder.php
+│
+├── routes/
+│   ├── web.php
+│   └── api.php
+├── resources/views/                # une sous-dossier par bloc si besoin
+├── tests/
+│   ├── Feature/                    # Besoin/, Recrutement/, ...
+│   └── Unit/
+├── docs/                           # documentation du projet
+│   ├── mcd.png
+│   ├── workflows.md
+│   └── conventions.md
+├── .env.example                    # modèle de config (poussé sur GitHub)
+├── .env                            # vos vrais identifiants (JAMAIS poussé)
+├── .gitignore
+└── README.md                       # installation + règles d'équipe
