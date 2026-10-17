@@ -3,6 +3,10 @@
 namespace App\Models\Recrutement;
 
 use App\Enums\StatutCandidature;
+use App\Observers\Recrutement\CandidatureObserver;
+use App\Policies\Recrutement\CandidaturePolicy;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,6 +16,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * Candidature = un candidat qui postule à une offre. C'est l'objet central du Bloc 2 :
  * entretiens, évaluations, historique et (Bloc 3) proposition d'embauche s'y rattachent.
  */
+#[ObservedBy(CandidatureObserver::class)] // journalise les changements de statut
+#[UsePolicy(CandidaturePolicy::class)]     // droits d'accès selon le rôle
 class Candidature extends Model
 {
     use HasFactory;

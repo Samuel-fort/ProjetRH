@@ -51,4 +51,27 @@ enum StatutCandidature: string implements HasLabel, HasColor
     {
         return in_array($this, [self::Retenue, self::Refusee], true);
     }
+
+    /**
+     * Les statuts vers lesquels on a le droit d'aller depuis celui-ci.
+     * C'est la "carte" du workflow : le service la consulte avant tout changement,
+     * et l'interface Filament pourra s'en servir pour n'afficher que les boutons valides.
+     *
+     * @return array<int, self>
+     */
+    public function transitionsPossibles(): array
+    {
+        return match ($this) {
+            self::Recue => [self::Preselectionnee, self::Refusee],
+            self::Preselectionnee => [self::EnEntretien, self::EnTest, self::Refusee],
+            self::EnEntretien => [self::EnTest, self::Retenue, self::Refusee],
+            self::EnTest => [self::EnEntretien, self::Retenue, self::Refusee],
+            self::Retenue, self::Refusee => [], // décision finale
+        };
+    }
+
+    public function peutPasserA(self $cible): bool
+    {
+        return in_array($cible, $this->transitionsPossibles(), true);
+    }
 }

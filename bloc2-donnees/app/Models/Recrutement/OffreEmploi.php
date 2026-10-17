@@ -4,6 +4,8 @@ namespace App\Models\Recrutement;
 
 use App\Enums\StatutOffre;
 use App\Models\Besoin\DemandeRecrutement; // modèle du Bloc 1 (Samuel)
+use App\Policies\Recrutement\OffreEmploiPolicy;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * Offre d'emploi publiée à partir d'une demande de recrutement validée.
  */
+#[UsePolicy(OffreEmploiPolicy::class)]
 class OffreEmploi extends Model
 {
     use HasFactory;
