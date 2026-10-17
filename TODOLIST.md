@@ -60,13 +60,23 @@ Laravel exécute les migrations par ordre alphabétique des noms de fichiers. Po
 | 3 | `2026_10_16_3NNNNN_` |
 | 4 | `2026_10_16_4NNNNN_` |
 
-Exemple : `2026_10_16_100001_create_departements_table.php`, puis `..._100002_create_postes_table.php`, etc. (le `NNNNN` s'incrémente dans l'ordre des dépendances à l'intérieur du bloc).
+Exemple : `2026_10_16_100001_create_besoin_departements_table.php`, puis `..._100002_create_besoin_postes_table.php`, etc. (le `NNNNN` s'incrémente dans l'ordre des dépendances à l'intérieur du bloc).
 
 ### Conventions communes
-- Noms de tables en snake_case pluriel, noms de colonnes en français.
+- Noms de tables en snake_case pluriel, **préfixés par leur bloc**, noms de colonnes en français :
+
+  | Bloc | Préfixe de table | Exemple |
+  |------|------------------|---------|
+  | 1 | `besoin_` | `besoin_postes` |
+  | 2 | `recrutement_` | `recrutement_candidats` |
+  | 3 | `embauche_` | `embauche_employes` |
+  | 4 | `contrat_` | `contrat_contrats` |
+
+  Les tables standard de Laravel (`users`, `cache`, `jobs`, `sessions`…) gardent leur nom, sans préfixe.
+- **Chaque modèle déclare son nom de table** (`protected $table = 'besoin_postes';`), sinon Laravel cherche le nom anglais par défaut et ça plante.
 - Statuts = **Enums PHP** (`app/Enums/`), un fichier par enum, nom préfixé par le bloc si besoin (`StatutDemande`, `StatutCandidature`, `TypeContrat`…).
 - Chaque modèle a sa factory et chaque bloc a son seeder pour avoir des données de test identiques chez tous.
-- Clés étrangères : `foreignId('...')->constrained()` (pas de `cascadeOnDelete` sans en parler : on garde l'historique).
+- Clés étrangères : `foreignId('...')->constrained('nom_de_la_table')` en **donnant toujours le nom de la table** (Laravel ne devine pas les préfixes). Pas de `cascadeOnDelete` sans en parler : on garde l'historique.
 
 ---
 
@@ -102,39 +112,39 @@ Pour travailler en parallèle sans se bloquer, **on se met d'accord dès mainten
 ### Bloc 1 (Samuel)
 | Table | Colonnes principales |
 |-------|----------------------|
-| `departements` | id, nom ★, code, `parent_id` (nullable, auto-référence : département → service → section) |
-| `postes` | id ★, intitule, `departement_id` ★, description. **Aucune FK vers un employé** |
-| `demande_recrutements` | id ★, `poste_id` ★, `departement_id`, `demandeur_id` (users), nombre, motif (`creation`/`remplacement`), budget, date_souhaitee, statut ★ |
-| `validations` | id, `demande_recrutement_id`, etape (`manager`/`rh`/`finance`/`direction`), `validateur_id`, statut, commentaire, date_decision |
+| `besoin_departements` | id, nom ★, code, `parent_id` (nullable, auto-référence : département → service → section) |
+| `besoin_postes` | id ★, intitule, `departement_id` ★, description. **Aucune FK vers un employé** |
+| `besoin_demande_recrutements` | id ★, `poste_id` ★, `departement_id`, `demandeur_id` (users), nombre, motif (`creation`/`remplacement`), budget, date_souhaitee, statut ★ |
+| `besoin_validations` | id, `demande_recrutement_id`, etape (`manager`/`rh`/`finance`/`direction`), `validateur_id`, statut, commentaire, date_decision |
 
 ### Bloc 2 (Lionel)
 | Table | Colonnes principales |
 |-------|----------------------|
-| `offre_emplois` | id ★, `demande_recrutement_id` ★, titre, description, statut, date_publication, date_cloture |
-| `candidats` | id ★, nom, prenom, email (unique), telephone, cv_path |
-| `candidatures` | id ★, `offre_emploi_id`, `candidat_id` ★, statut ★, date_candidature. Unique (`offre_emploi_id`, `candidat_id`) |
-| `entretiens` | id, `candidature_id`, type (`dossier`/`entretien`/`test`), date_heure, lieu, `intervenant_id` |
-| `evaluation_candidats` | id, `candidature_id`, `entretien_id` (nullable), `evaluateur_id`, note, commentaire |
-| `candidature_historiques` | id, `candidature_id`, ancien_statut, nouveau_statut, `user_id`, created_at (**traçabilité**) |
+| `recrutement_offre_emplois` | id ★, `demande_recrutement_id` ★, titre, description, statut, date_publication, date_cloture |
+| `recrutement_candidats` | id ★, nom, prenom, email (unique), telephone, cv_path |
+| `recrutement_candidatures` | id ★, `offre_emploi_id`, `candidat_id` ★, statut ★, date_candidature. Unique (`offre_emploi_id`, `candidat_id`) |
+| `recrutement_entretiens` | id, `candidature_id`, type (`dossier`/`entretien`/`test`), date_heure, lieu, `intervenant_id` |
+| `recrutement_evaluation_candidats` | id, `candidature_id`, `entretien_id` (nullable), `evaluateur_id`, note, commentaire |
+| `recrutement_candidature_historiques` | id, `candidature_id`, ancien_statut, nouveau_statut, `user_id`, created_at (**traçabilité**) |
 
 ### Bloc 3 (Lionel)
 | Table | Colonnes principales |
 |-------|----------------------|
-| `proposition_embauches` | id ★, `candidature_id` ★, salaire, horaires, lieu_travail, date_debut, statut (`envoyee`/`acceptee`/`refusee`), date_reponse |
-| `employes` | id ★, `candidat_id` ★ (nullable si import), `matricule` (nullable, unique), nom, prenom, email, statut. **Pas de colonne `type_contrat`** |
+| `embauche_proposition_embauches` | id ★, `candidature_id` ★, salaire, horaires, lieu_travail, date_debut, statut (`envoyee`/`acceptee`/`refusee`), date_reponse |
+| `embauche_employes` | id ★, `candidat_id` ★ (nullable si import), `matricule` (nullable, unique), nom, prenom, email, statut. **Pas de colonne `type_contrat`** |
 
 ### Bloc 4 (Voara)
 | Table | Colonnes principales |
 |-------|----------------------|
-| `contrats` | id ★, `employe_id` ★, type (`cdd`/`cdi`/`renouvellement`…), date_debut, date_fin, salaire, horaires, lieu_travail, statut (`cree`/`signe`/`valide`), `contrat_precedent_id` (nullable, historique) |
-| `affectations` | id, `employe_id`, `poste_id`, `departement_id`, date_debut, date_fin (nullable) |
-| `onboardings` | id, `employe_id`, `contrat_id`, statut |
-| `onboarding_taches` | id, `onboarding_id`, libelle (contrat signé, badge, compte, matériel, formation, inscription paie), statut, `responsable_id`, date_echeance |
-| `documents` | id, relation polymorphe (`documentable_type`, `documentable_id`), type, nom, chemin |
+| `contrat_contrats` | id ★, `employe_id` ★, type (`cdd`/`cdi`/`renouvellement`…), date_debut, date_fin, salaire, horaires, lieu_travail, statut (`cree`/`signe`/`valide`), `contrat_precedent_id` (nullable, historique) |
+| `contrat_affectations` | id, `employe_id`, `poste_id`, `departement_id`, date_debut, date_fin (nullable) |
+| `contrat_onboardings` | id, `employe_id`, `contrat_id`, statut |
+| `contrat_onboarding_taches` | id, `onboarding_id`, libelle (contrat signé, badge, compte, matériel, formation, inscription paie), statut, `responsable_id`, date_echeance |
+| `contrat_documents` | id, relation polymorphe (`documentable_type`, `documentable_id`), type, nom, chemin |
 
 ### Décisions à confirmer ensemble
 - **Quand naît le matricule ?** Le cours Bloc 3 dit « après acceptation », le Bloc 4 dit « une fois le contrat signé ». **Proposition : l'`Employe` est créé à l'acceptation (sans matricule), et le matricule est généré par Voara au passage du contrat à `signe`.** À valider avec le prof si besoin.
-- **Qui crée le contrat ?** Lionel ne touche pas à la table `contrats`. À l'acceptation d'une proposition, il envoie l'événement `PropositionAcceptee` (dans `app/Events/`, créé par Lionel). **Voara écoute cet événement** (listener dans `Services/Contrat`) : il crée le `Contrat` (statut `cree`) et l'`Affectation`.
+- **Qui crée le contrat ?** Lionel ne touche pas à la table `contrat_contrats`. À l'acceptation d'une proposition, il envoie l'événement `PropositionAcceptee` (dans `app/Events/`, créé par Lionel). **Voara écoute cet événement** (listener dans `Services/Contrat`) : il crée le `Contrat` (statut `cree`) et l'`Affectation`.
 - **Qui génère le PDF du contrat ?** Voara l'appelle après la création du contrat. Le service `GenererContratPdf` est écrit par Lionel (Bloc 3 du cours) et prend un `Contrat`. En attendant que `Contrat` existe, Lionel le teste avec les données de `PropositionEmbauche`.
 
 ---
@@ -154,7 +164,7 @@ Pour travailler en parallèle sans se bloquer, **on se met d'accord dès mainten
 
 ### Workflow : Manager → RH → Finance → Direction → ouverture du recrutement
 - [ ] `Services/Besoin/DemandeRecrutementService` : `soumettre()`, `valider()`, `refuser()`
-- [ ] À la soumission : créer les 4 lignes de `validations` (une par étape, dans l'ordre)
+- [ ] À la soumission : créer les 4 lignes de `besoin_validations` (une par étape, dans l'ordre)
 - [ ] Une étape ne peut être validée que si la précédente l'est et que l'utilisateur a le bon rôle
 - [ ] Un refus à n'importe quelle étape passe la demande à `refusee` (avec commentaire obligatoire)
 - [ ] Quand la Direction valide : la demande passe à `recrutement_ouvert` (c'est le signal pour le Bloc 2)
@@ -176,7 +186,7 @@ Pour travailler en parallèle sans se bloquer, **on se met d'accord dès mainten
 
 ## 4. Bloc 2 — Recrutement (Lionel) · branche `bloc2-recrutement`
 
-**Dépend de :** `demande_recrutements` (Bloc 1). En attendant que Samuel ait fusionné, utiliser `main` après le socle et demander à Samuel de pousser tôt la migration de `demande_recrutements`.
+**Dépend de :** `besoin_demande_recrutements` (Bloc 1). En attendant que Samuel ait fusionné, utiliser `main` après le socle et demander à Samuel de pousser tôt la migration de `besoin_demande_recrutements`.
 
 ### Données
 - [ ] Migration + modèle + factory `OffreEmploi`
@@ -194,7 +204,7 @@ Pour travailler en parallèle sans se bloquer, **on se met d'accord dès mainten
 - [ ] `CandidatureService` : réception d'une candidature, recherche d'un `Candidat` existant par email (un même candidat peut postuler plusieurs fois, **ne pas le dupliquer**)
 - [ ] Présélection : sélection de dossier, planification d'entretiens et de tests
 - [ ] Enregistrer les évaluations (notes + commentaires) et la décision finale (`retenue` / `refusee`)
-- [ ] Observer : chaque changement de statut de candidature écrit une ligne dans `candidature_historiques`
+- [ ] Observer : chaque changement de statut de candidature écrit une ligne dans `recrutement_candidature_historiques`
 - [ ] Policies : qui peut évaluer, qui peut décider
 
 ### Écrans Filament (`Filament/Resources/Recrutement`)
@@ -212,7 +222,7 @@ Pour travailler en parallèle sans se bloquer, **on se met d'accord dès mainten
 ## 5. Bloc 3 — Sélection et embauche (Lionel) · branche `bloc3-embauche`
 
 **Rappel de conception : Candidat ≠ Employé.**
-**Dépend de :** `candidatures` (Bloc 2). À commencer après avoir fusionné la base du Bloc 2.
+**Dépend de :** `recrutement_candidatures` (Bloc 2). À commencer après avoir fusionné la base du Bloc 2.
 
 ### Données
 - [ ] Migration + modèle + factory `PropositionEmbauche` (salaire, horaires, lieu de travail, date de début)
@@ -241,7 +251,7 @@ Pour travailler en parallèle sans se bloquer, **on se met d'accord dès mainten
 ## 6. Bloc 4 — Contrat et onboarding (Voara) · branche `bloc4-contrat`
 
 **Rappel de conception : ne pas écraser l'historique.** Un salarié a plusieurs contrats successifs (CDD, renouvellement, CDI…), jamais un simple champ `employe.type_contrat`.
-**Dépend de :** `employes` et `proposition_embauches` (Bloc 3), `postes` (Bloc 1). Voara peut commencer par les migrations qui ne dépendent que de `employes` dès que Lionel l'a poussée, et les autres ensuite.
+**Dépend de :** `embauche_employes` et `embauche_proposition_embauches` (Bloc 3), `besoin_postes` (Bloc 1). Voara peut commencer par les migrations qui ne dépendent que de `embauche_employes` dès que Lionel l'a poussée, et les autres ensuite.
 
 ### Données
 - [ ] Migration + modèle + factory `Contrat` (statut, `contrat_precedent_id`)
