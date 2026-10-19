@@ -7,8 +7,7 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Bloc 2 — table `offre_emplois`.
  * Une offre naît d'UNE demande de recrutement validée (Bloc 1, table
- * `demande_recrutements`). ATTENTION : cette migration suppose que la table
- * du Bloc 1 existe déjà (préfixe 1 < préfixe 2, donc elle s'exécute avant).
+ * `besoin_demande_recrutements`). Cette table est créée avant cette migration.
  */
 return new class extends Migration
 {
@@ -17,7 +16,7 @@ return new class extends Migration
         Schema::create('offre_emplois', function (Blueprint $table) {
             $table->id();
             // Pas de cascadeOnDelete : on garde l'historique (règle de la TODOLIST).
-            $table->foreignId('demande_recrutement_id')->constrained('demande_recrutements');
+            $table->foreignId('demande_recrutement_id')->constrained('besoin_demande_recrutements');
             $table->string('titre');
             $table->text('description')->nullable();
             $table->string('statut')->default('brouillon'); // enum StatutOffre
