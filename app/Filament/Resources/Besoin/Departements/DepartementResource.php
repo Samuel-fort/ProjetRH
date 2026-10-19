@@ -6,11 +6,13 @@ use App\Filament\Resources\Besoin\Departements\Pages\CreateDepartement;
 use App\Filament\Resources\Besoin\Departements\Pages\EditDepartement;
 use App\Filament\Resources\Besoin\Departements\Pages\ListDepartements;
 use App\Models\Besoin\Departement;
+use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -25,6 +27,8 @@ class DepartementResource extends Resource
 {
     protected static ?string $model = Departement::class;
 
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice2;
+
     protected static ?string $recordTitleAttribute = 'nom';
 
     protected static ?string $modelLabel = 'département';
@@ -35,7 +39,7 @@ class DepartementResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Bloc 1 — Besoin';
+        return 'Besoin';
     }
 
     public static function form(Schema $schema): Schema
