@@ -5,6 +5,7 @@ namespace App\Listeners\Contrat;
 use App\Events\PropositionAcceptee;
 use App\Services\Contrat\ContratService;
 use App\Services\Contrat\DonneesContratDepuisProposition;
+use Illuminate\Validation\ValidationException;
 
 class CreerContratApresAcceptation
 {
@@ -17,6 +18,10 @@ class CreerContratApresAcceptation
     {
         $donnees = $this->donneesContratDepuisProposition->extraire($event->proposition);
 
-        $this->contratService->creerDepuisProposition($event->employe, $donnees);
+        try {
+            $this->contratService->creerDepuisProposition($event->proposition->employe, $donnees);
+        } catch (ValidationException $exception) {
+            report($exception);
+        }
     }
 }

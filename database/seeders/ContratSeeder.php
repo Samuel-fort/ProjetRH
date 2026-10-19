@@ -198,9 +198,15 @@ class ContratSeeder extends Seeder
             $employes[] = Employe::factory()->create();
         }
 
-        if ($employes[0]->matricule !== null) {
-            array_pop($employes);
-            array_unshift($employes, Employe::factory()->create());
+        $indexSansMatricule = collect($employes)->search(
+            fn (Employe $employe): bool => $employe->matricule === null
+        );
+
+        if ($indexSansMatricule !== false && $indexSansMatricule !== 0) {
+            $sansMatricule = $employes[$indexSansMatricule];
+            unset($employes[$indexSansMatricule]);
+            array_unshift($employes, $sansMatricule);
+            $employes = array_values($employes);
         }
 
         return $employes;

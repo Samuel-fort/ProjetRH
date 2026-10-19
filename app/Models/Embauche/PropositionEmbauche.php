@@ -16,7 +16,7 @@ class PropositionEmbauche extends Model
 {
     use HasFactory;
 
-    protected $table = 'proposition_embauches';
+    protected $table = 'embauche_proposition_embauches';
 
     protected $fillable = [
         'candidature_id', 'salaire', 'horaires', 'lieu_travail', 'date_debut',

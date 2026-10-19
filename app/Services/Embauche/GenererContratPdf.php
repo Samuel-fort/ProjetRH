@@ -4,8 +4,8 @@ namespace App\Services\Embauche;
 
 use App\Models\Embauche\PropositionEmbauche;
 use Barryvdh\DomPDF\Facade\Pdf;
-use RuntimeException;
 use Illuminate\Support\Facades\Storage;
+use RuntimeException;
 
 /**
  * Génère le PDF du contrat (salaire, horaires, lieu de travail, dates).

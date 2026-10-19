@@ -21,9 +21,7 @@ use Illuminate\Support\Facades\DB;
  */
 class PropositionService
 {
-    public function __construct(private MatriculeService $matricules)
-    {
-    }
+    public function __construct(private MatriculeService $matricules) {}
 
     /**
      * Prépare une proposition (brouillon) pour une candidature.

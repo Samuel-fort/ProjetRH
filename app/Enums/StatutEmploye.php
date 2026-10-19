@@ -10,7 +10,7 @@ use Filament\Support\Contracts\HasLabel;
  * Un employé naît `en_integration` (à l'acceptation) ; le Bloc 4 pourra le passer
  * à `actif` quand son onboarding est terminé, puis à `sorti` lors d'une rupture.
  */
-enum StatutEmploye: string implements HasLabel, HasColor
+enum StatutEmploye: string implements HasColor, HasLabel
 {
     case EnIntegration = 'en_integration';
     case Actif = 'actif';

@@ -13,9 +13,7 @@ use Throwable;
  */
 class GenererContratPdfApresAcceptation
 {
-    public function __construct(private GenererContratPdf $generateur)
-    {
-    }
+    public function __construct(private GenererContratPdf $generateur) {}
 
     public function handle(PropositionAcceptee $evenement): void
     {

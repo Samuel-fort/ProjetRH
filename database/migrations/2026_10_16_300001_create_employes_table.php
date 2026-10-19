@@ -14,7 +14,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('employes', function (Blueprint $table) {
+        Schema::create('embauche_employes', function (Blueprint $table) {
             $table->id();
             // Nullable : un employé importé n'a jamais été candidat.
             $table->foreignId('candidat_id')->nullable()->constrained('candidats');
@@ -30,6 +30,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('employes');
+        Schema::dropIfExists('embauche_employes');
     }
 };

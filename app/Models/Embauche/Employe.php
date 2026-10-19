@@ -3,6 +3,7 @@
 namespace App\Models\Embauche;
 
 use App\Enums\StatutEmploye;
+use App\Models\Contrat\Concerns\PossedeContrats;
 use App\Models\Recrutement\Candidat;
 use App\Policies\Embauche\EmployePolicy;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
@@ -18,9 +19,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[UsePolicy(EmployePolicy::class)]
 class Employe extends Model
 {
-    use HasFactory;
+    use HasFactory, PossedeContrats;
 
-    protected $table = 'employes';
+    protected $table = 'embauche_employes';
 
     protected $fillable = ['candidat_id', 'matricule', 'nom', 'prenom', 'email', 'statut'];
 

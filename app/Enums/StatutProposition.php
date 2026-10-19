@@ -14,7 +14,7 @@ use Filament\Support\Contracts\HasLabel;
  * `brouillon` est un statut ajouté par rapport à la TODOLIST (envoyee/acceptee/refusee) :
  * il permet de préparer la proposition (salaire, horaires...) avant de l'envoyer.
  */
-enum StatutProposition: string implements HasLabel, HasColor
+enum StatutProposition: string implements HasColor, HasLabel
 {
     case Brouillon = 'brouillon';
     case Envoyee = 'envoyee';

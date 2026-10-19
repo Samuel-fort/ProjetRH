@@ -32,8 +32,12 @@ class EcransEmbaucheTest extends TestCase
         Filament::setCurrentPanel(Filament::getPanel('admin'));
 
         // Ces tests ne vérifient pas dompdf : on neutralise la conversion PDF.
-        $this->app->instance(GenererContratPdf::class, new class extends GenererContratPdf {
-            protected function rendrePdf(string $html): string { return '%PDF-1.4 faux'; }
+        $this->app->instance(GenererContratPdf::class, new class extends GenererContratPdf
+        {
+            protected function rendrePdf(string $html): string
+            {
+                return '%PDF-1.4 faux';
+            }
         });
     }
 

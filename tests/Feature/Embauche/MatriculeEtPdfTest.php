@@ -6,6 +6,7 @@ use App\Models\Embauche\Employe;
 use App\Models\Embauche\PropositionEmbauche;
 use App\Services\Embauche\GenererContratPdf;
 use App\Services\Embauche\MatriculeService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -68,8 +69,12 @@ class MatriculeEtPdfTest extends TestCase
         $p = PropositionEmbauche::factory()->create();
 
         // On remplace uniquement la conversion HTML -> PDF (dompdf n'est pas nécessaire pour ce test).
-        $generateur = new class extends GenererContratPdf {
-            protected function rendrePdf(string $html): string { return '%PDF-1.4 faux'; }
+        $generateur = new class extends GenererContratPdf
+        {
+            protected function rendrePdf(string $html): string
+            {
+                return '%PDF-1.4 faux';
+            }
         };
         $chemin = $generateur->depuisProposition($p);
 
@@ -79,7 +84,7 @@ class MatriculeEtPdfTest extends TestCase
 
     public function test_pdf_reel_avec_dompdf(): void
     {
-        if (! class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
+        if (! class_exists(Pdf::class)) {
             $this->markTestSkipped('barryvdh/laravel-dompdf non installé : composer require barryvdh/laravel-dompdf');
         }
         Storage::fake('local');

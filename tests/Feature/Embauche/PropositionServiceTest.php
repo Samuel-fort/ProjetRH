@@ -6,7 +6,6 @@ use App\Enums\StatutCandidature;
 use App\Enums\StatutEmploye;
 use App\Enums\StatutProposition;
 use App\Events\PropositionAcceptee;
-use App\Listeners\GenererContratPdfApresAcceptation;
 use App\Models\Embauche\Employe;
 use App\Models\Embauche\PropositionEmbauche;
 use App\Models\Recrutement\Candidat;
@@ -169,9 +168,16 @@ class PropositionServiceTest extends TestCase
     {
         // On remplace le générateur par un faux pour vérifier seulement l'appel.
         $appels = [];
-        $this->app->instance(GenererContratPdf::class, new class($appels) extends GenererContratPdf {
+        $this->app->instance(GenererContratPdf::class, new class($appels) extends GenererContratPdf
+        {
             public function __construct(public array &$appels) {}
-            public function depuisProposition(PropositionEmbauche $p): string { $this->appels[] = $p->id; return 'x.pdf'; }
+
+            public function depuisProposition(PropositionEmbauche $p): string
+            {
+                $this->appels[] = $p->id;
+
+                return 'x.pdf';
+            }
         });
 
         $p = $this->service->envoyer($this->service->creer($this->retenue(), $this->donnees()));
@@ -182,8 +188,12 @@ class PropositionServiceTest extends TestCase
 
     public function test_une_erreur_de_pdf_n_annule_pas_l_acceptation(): void
     {
-        $this->app->instance(GenererContratPdf::class, new class extends GenererContratPdf {
-            public function depuisProposition(PropositionEmbauche $p): string { throw new \RuntimeException('PDF KO'); }
+        $this->app->instance(GenererContratPdf::class, new class extends GenererContratPdf
+        {
+            public function depuisProposition(PropositionEmbauche $p): string
+            {
+                throw new \RuntimeException('PDF KO');
+            }
         });
         $this->withoutExceptionHandling(); // report() ne doit pas faire planter le test
 

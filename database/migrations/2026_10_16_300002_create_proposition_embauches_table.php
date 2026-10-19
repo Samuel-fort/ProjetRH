@@ -16,7 +16,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('proposition_embauches', function (Blueprint $table) {
+        Schema::create('embauche_proposition_embauches', function (Blueprint $table) {
             $table->id();
             $table->foreignId('candidature_id')->constrained('candidatures');
             $table->decimal('salaire', 12, 2);              // montant mensuel brut
@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('statut')->default('brouillon');  // enum StatutProposition
             $table->date('date_envoi')->nullable();
             $table->date('date_reponse')->nullable();
-            $table->foreignId('employe_id')->nullable()->constrained('employes');
+            $table->foreignId('employe_id')->nullable()->constrained('embauche_employes');
             $table->string('contrat_pdf_path')->nullable();
             $table->timestamps();
         });
@@ -34,6 +34,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('proposition_embauches');
+        Schema::dropIfExists('embauche_proposition_embauches');
     }
 };

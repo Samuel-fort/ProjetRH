@@ -39,7 +39,7 @@ class EditPropositionEmbauche extends EditRecord
                 ->icon('heroicon-o-check-circle')
                 ->color('success')
                 ->requiresConfirmation()
-                ->modalDescription("Un employé sera créé avec son matricule, et le contrat PDF sera généré.")
+                ->modalDescription('Un employé sera créé avec son matricule, et le contrat PDF sera généré.')
                 ->visible(fn () => $this->record->statut === StatutProposition::Envoyee && auth()->user()->can('repondre', $this->record))
                 ->action(fn () => $this->executer(fn (PropositionService $s) => $s->accepter($this->record), 'Proposition acceptée : employé créé')),
 

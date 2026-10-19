@@ -19,7 +19,5 @@ class PropositionAcceptee
 {
     use Dispatchable, SerializesModels;
 
-    public function __construct(public PropositionEmbauche $proposition)
-    {
-    }
+    public function __construct(public PropositionEmbauche $proposition) {}
 }
