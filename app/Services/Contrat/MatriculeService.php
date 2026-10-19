@@ -44,6 +44,19 @@ class MatriculeService
                 ->where('annee', $annee)
                 ->lockForUpdate()
                 ->firstOrFail();
+
+            $prefixe = sprintf('EMP-%d-', $annee);
+            $dernierMatricule = Employe::query()
+                ->where('matricule', 'like', $prefixe.'%')
+                ->pluck('matricule')
+                ->map(fn (string $matricule): int => (int) substr($matricule, strlen($prefixe)))
+                ->max() ?? 0;
+
+            if ($compteur->dernier_numero < $dernierMatricule) {
+                $compteur->dernier_numero = $dernierMatricule;
+                $compteur->save();
+            }
+
             $compteur->increment('dernier_numero');
 
             $matricule = sprintf('EMP-%d-%04d', $annee, $compteur->dernier_numero);

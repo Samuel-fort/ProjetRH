@@ -24,6 +24,7 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -37,6 +38,8 @@ class DemandeRecrutementResource extends Resource
 {
     protected static ?string $model = DemandeRecrutement::class;
 
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
+
     protected static ?string $modelLabel = 'demande de recrutement';
 
     protected static ?string $pluralModelLabel = 'demandes de recrutement';
@@ -45,7 +48,7 @@ class DemandeRecrutementResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Bloc 1 — Besoin';
+        return 'Besoin';
     }
 
     /** Formulaire de creation / modification (le statut n'est jamais modifiable ici). */
