@@ -7,6 +7,7 @@ use App\Enums\TypeEtape;
 use App\Filament\Resources\Recrutement\Candidatures\CandidatureResource;
 use App\Models\User;
 use App\Services\Recrutement\CandidatureService;
+use App\Services\Recrutement\PreselectionCvService;
 use Closure;
 use DomainException;
 use Filament\Actions\Action;
@@ -32,6 +33,22 @@ class ViewCandidature extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('analyser_cv')
+                ->label('Analyser le CV avec l’IA')
+                ->icon('heroicon-o-sparkles')
+                ->color('info')
+                ->visible(fn () => auth()->user()->can('update', $this->record))
+                ->action(function (PreselectionCvService $service): void {
+                    try {
+                        $service->analyserAvecIa($this->record);
+                        Notification::make()->title('Analyse IA enregistrée')->success()->send();
+                    } catch (DomainException $e) {
+                        Notification::make()->title($e->getMessage())->danger()->send();
+                    }
+
+                    $this->record->refresh();
+                }),
+
             Action::make('preselectionner')
                 ->label('Présélectionner')
                 ->icon('heroicon-o-check-circle')

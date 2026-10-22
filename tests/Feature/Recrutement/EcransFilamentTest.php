@@ -4,9 +4,9 @@ namespace Tests\Feature\Recrutement;
 
 use App\Enums\StatutCandidature;
 use App\Enums\StatutOffre;
+use App\Filament\Resources\Recrutement\Candidats\Pages\CreateCandidat;
 use App\Filament\Resources\Recrutement\Candidatures\Pages\ListCandidatures;
 use App\Filament\Resources\Recrutement\Candidatures\Pages\ViewCandidature;
-use App\Filament\Resources\Recrutement\Candidats\Pages\CreateCandidat;
 use App\Filament\Resources\Recrutement\OffreEmplois\Pages\CreateOffreEmploi;
 use App\Filament\Resources\Recrutement\OffreEmplois\Pages\EditOffreEmploi;
 use App\Models\Besoin\DemandeRecrutement;
@@ -48,6 +48,18 @@ class EcransFilamentTest extends TestCase
         $this->assertSame(5, Candidat::count());       // 6 candidatures mais 5 personnes
         $this->assertSame(6, Candidature::count());
         $this->assertSame(1, Candidature::where('statut', StatutCandidature::Retenue)->count());
+        $this->assertNotNull(Candidat::where('email', 'jean.rakoto@exemple.mg')->value('cv_texte'));
+        $this->assertSame(
+            'a_contacter_en_priorite',
+            Candidature::whereHas('candidat', fn ($query) => $query->where('email', 'jean.rakoto@exemple.mg'))
+                ->firstOrFail()
+                ->analyse_preselection['recommandation'],
+        );
+        $this->assertNotEmpty(
+            Candidature::whereHas('candidat', fn ($query) => $query->where('email', 'fara.randria@exemple.mg'))
+                ->firstOrFail()
+                ->analyse_preselection['alertes'],
+        );
     }
 
     public function test_la_rh_cree_puis_publie_une_offre_depuis_une_demande_validee(): void

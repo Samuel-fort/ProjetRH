@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'openai' => [
+     'api_key'  => env('OPENAI_API_KEY'),
+     'base_url' => env('OPENAI_BASE_URL', 'https://api.groq.com/openai/v1'),
+     'model'    => env('OPENAI_MODEL', 'openai/gpt-oss-20b'),
+    ],
+
 ];

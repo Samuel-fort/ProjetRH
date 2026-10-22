@@ -6,7 +6,10 @@ use App\Enums\StatutCandidature;
 use App\Filament\Resources\Recrutement\Candidatures\Pages\ListCandidatures;
 use App\Filament\Resources\Recrutement\Candidatures\Pages\ViewCandidature;
 use App\Models\Recrutement\Candidature;
+use App\Services\Recrutement\PreselectionCvService;
 use BackedEnum;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\ViewAction;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -17,6 +20,8 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 
@@ -68,6 +73,32 @@ class CandidatureResource extends Resource
                     ->openUrlInNewTab(),
             ]),
 
+            Section::make('Présélection du CV')->schema([
+                TextEntry::make('analyse_preselection.recommandation')->label('Recommandation')->badge(),
+                TextEntry::make('analyse_preselection.score')->label('Score /100'),
+                TextEntry::make('analyse_preselection.confiance')->label('Confiance'),
+                TextEntry::make('analyse_preselection.resume')->label('Résumé')->columnSpanFull(),
+                RepeatableEntry::make('analyse_preselection.criteres')->label('Critères')->columns(4)->schema([
+                    TextEntry::make('critere')->label('Critère'),
+                    TextEntry::make('type')->label('Type'),
+                    TextEntry::make('statut')->label('Statut'),
+                    TextEntry::make('preuve')->label('Preuve'),
+                ]),
+                TextEntry::make('analyse_preselection.points_forts')
+                    ->label('Points forts')
+                    ->formatStateUsing(fn (mixed $state): string => self::formatListeAnalyse($state)),
+                TextEntry::make('analyse_preselection.points_de_vigilance')
+                    ->label('Points de vigilance')
+                    ->formatStateUsing(fn (mixed $state): string => self::formatListeAnalyse($state)),
+                TextEntry::make('analyse_preselection.questions_entretien')
+                    ->label('Questions d’entretien')
+                    ->formatStateUsing(fn (mixed $state): string => self::formatListeAnalyse($state)),
+                TextEntry::make('analyse_preselection.alertes')
+                    ->label('Alertes')
+                    ->formatStateUsing(fn (mixed $state): string => self::formatListeAnalyse($state))
+                    ->placeholder('Aucune'),
+            ])->collapsible(),
+
             Section::make('Entretiens et tests')->schema([
                 RepeatableEntry::make('entretiens')->hiddenLabel()->placeholder('Aucune étape planifiée')->columns(4)->schema([
                     TextEntry::make('type')->label('Étape')->badge(),
@@ -97,6 +128,19 @@ class CandidatureResource extends Resource
         ]);
     }
 
+    private static function formatListeAnalyse(mixed $state): string
+    {
+        if (is_string($state)) {
+            $decoded = json_decode($state, true);
+
+            if (is_array($decoded)) {
+                $state = $decoded;
+            }
+        }
+
+        return is_array($state) ? implode("\n", $state) : (string) ($state ?? '');
+    }
+
     public static function table(Table $table): Table
     {
         return $table
@@ -119,6 +163,28 @@ class CandidatureResource extends Resource
             ->filters([
                 SelectFilter::make('statut')->label('Statut')->options(StatutCandidature::class),
                 SelectFilter::make('offre_emploi_id')->label('Offre')->relationship('offreEmploi', 'titre'),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    BulkAction::make('analyser_cv')
+                        ->label('Analyser les CV sélectionnés avec l’IA')
+                        ->icon('heroicon-o-sparkles')
+                        ->color('info')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records): void {
+                            $rapport = app(PreselectionCvService::class)->analyserPlusieurs($records);
+                            $message = "{$rapport['analysees']} CV analysé(s).";
+
+                            if ($rapport['erreurs'] !== []) {
+                                $message .= ' '.count($rapport['erreurs']).' erreur(s) : '.implode(' | ', $rapport['erreurs']);
+                            }
+
+                            Notification::make()
+                                ->title($message)
+                                ->color($rapport['erreurs'] === [] ? 'success' : 'warning')
+                                ->send();
+                        }),
+                ]),
             ])
             ->recordActions([ViewAction::make()->label('Ouvrir')])
             ->defaultSort('date_candidature', 'desc');

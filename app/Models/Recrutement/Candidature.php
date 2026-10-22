@@ -17,20 +17,21 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * entretiens, évaluations, historique et (Bloc 3) proposition d'embauche s'y rattachent.
  */
 #[ObservedBy(CandidatureObserver::class)] // journalise les changements de statut
-#[UsePolicy(CandidaturePolicy::class)]     // droits d'accès selon le rôle
+#[UsePolicy(CandidaturePolicy::class)] // droits d'accès selon le rôle
 class Candidature extends Model
 {
     use HasFactory;
 
     protected $table = 'candidatures';
 
-    protected $fillable = ['offre_emploi_id', 'candidat_id', 'statut', 'date_candidature'];
+    protected $fillable = ['offre_emploi_id', 'candidat_id', 'statut', 'date_candidature', 'analyse_preselection'];
 
     protected function casts(): array
     {
         return [
             'statut' => StatutCandidature::class,
             'date_candidature' => 'date',
+            'analyse_preselection' => 'array',
         ];
     }
 
