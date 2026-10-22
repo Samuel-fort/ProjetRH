@@ -9,6 +9,7 @@ use App\Models\Recrutement\Candidat;
 use BackedEnum;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -61,6 +62,10 @@ class CandidatResource extends Resource
                 ->directory('cvs')
                 ->acceptedFileTypes(['application/pdf'])
                 ->maxSize(5120),          // 5 Mo
+            Textarea::make('cv_texte')
+                ->label('Texte du CV')
+                ->rows(8)
+                ->columnSpanFull(),
         ]);
     }
 

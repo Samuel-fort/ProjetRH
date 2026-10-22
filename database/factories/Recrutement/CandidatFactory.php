@@ -18,6 +18,7 @@ class CandidatFactory extends Factory
             'email' => fake()->unique()->safeEmail(), // unique : la colonne l'exige
             'telephone' => '03'.fake()->numerify('# ## ### ##'),
             'cv_path' => null,
+            'cv_texte' => null,
         ];
     }
 }

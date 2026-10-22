@@ -33,7 +33,7 @@ class CandidatureService
      *   (une personne = un seul Candidat, même avec plusieurs candidatures).
      * - Postuler deux fois à la même offre est refusé.
      *
-     * @param  array{nom: string, prenom: string, email: string, telephone?: ?string, cv_path?: ?string}  $infos
+    * @param  array{nom: string, prenom: string, email: string, telephone?: ?string, cv_path?: ?string, cv_texte?: ?string}  $infos
      */
     public function recevoirCandidature(OffreEmploi $offre, array $infos): Candidature
     {
@@ -53,6 +53,7 @@ class CandidatureService
                     'prenom' => $infos['prenom'],
                     'telephone' => $infos['telephone'] ?? null,
                     'cv_path' => $infos['cv_path'] ?? null,
+                    'cv_texte' => $infos['cv_texte'] ?? null,
                 ]
             );
 
@@ -61,6 +62,7 @@ class CandidatureService
                 $candidat->fill(array_filter([
                     'telephone' => $candidat->telephone ?: ($infos['telephone'] ?? null),
                     'cv_path' => $infos['cv_path'] ?? $candidat->cv_path,
+                    'cv_texte' => $infos['cv_texte'] ?? $candidat->cv_texte,
                 ]))->save();
             }
 

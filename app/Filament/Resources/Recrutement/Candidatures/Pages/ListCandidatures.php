@@ -11,6 +11,7 @@ use DomainException;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
@@ -39,6 +40,7 @@ class ListCandidatures extends ListRecords
                     TextInput::make('telephone')->label('Téléphone')->tel(),
                     FileUpload::make('cv_path')->label('CV (PDF)')->disk('public')->directory('cvs')
                         ->acceptedFileTypes(['application/pdf'])->maxSize(5120),
+                    Textarea::make('cv_texte')->label('Texte du CV')->rows(8)->columnSpanFull(),
                 ])
                 ->action(function (array $data) {
                     try {

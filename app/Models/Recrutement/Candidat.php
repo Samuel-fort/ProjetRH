@@ -20,7 +20,7 @@ class Candidat extends Model
     protected $table = 'candidats';
 
     // Champs modifiables en masse (Candidat::create([...]) / formulaires Filament).
-    protected $fillable = ['nom', 'prenom', 'email', 'telephone', 'cv_path'];
+    protected $fillable = ['nom', 'prenom', 'email', 'telephone', 'cv_path', 'cv_texte'];
 
     /** Toutes les candidatures de cette personne (offres différentes). */
     public function candidatures(): HasMany
