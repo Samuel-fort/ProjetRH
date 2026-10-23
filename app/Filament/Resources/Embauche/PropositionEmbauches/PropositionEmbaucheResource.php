@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Embauche\PropositionEmbauches;
 
 use App\Enums\StatutCandidature;
 use App\Enums\StatutProposition;
+use App\Filament\Actions\SafeDeleteAction;
 use App\Filament\Resources\Embauche\PropositionEmbauches\Pages\CreatePropositionEmbauche;
 use App\Filament\Resources\Embauche\PropositionEmbauches\Pages\EditPropositionEmbauche;
 use App\Filament\Resources\Embauche\PropositionEmbauches\Pages\ListPropositionEmbauches;
@@ -96,7 +97,11 @@ class PropositionEmbaucheResource extends Resource
             ->filters([
                 SelectFilter::make('statut')->label('Statut')->options(StatutProposition::class),
             ])
-            ->recordActions([EditAction::make()->label('Ouvrir')])
+            ->recordActions([
+                EditAction::make()->label('Ouvrir'),
+                SafeDeleteAction::make()
+                    ->visible(fn (PropositionEmbauche $record): bool => $record->statut === StatutProposition::Brouillon),
+            ])
             ->defaultSort('created_at', 'desc');
     }
 

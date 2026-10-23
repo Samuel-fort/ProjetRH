@@ -7,64 +7,7 @@ cv online et cv confirmation
 
 php artisan make:filament-user
 
-
-Contexte du projet
-- Application SIRH en Laravel 13, Filament 5.10 et Livewire 4.4, PHP 8.3, PostgreSQL.
-- Panel admin Filament dans app/Providers/Filament/AdminPanelProvider.php.
-- Rôles utilisateurs : enum App\Enums\RoleUtilisateur (manager, rh, finance, direction, admin),
-  accessible via $user->role.
-- Une IA est déjà branchée pour l'analyse des CV. Elle appelle l'API de Groq, compatible OpenAI,
-  avec la config config('services.openai.api_key'), ('base_url') et ('model').
-  Les appels se font côté PHP avec Http::withToken(...)->post($baseUrl.'/chat/completions', ...).
-- Menus actuels : Besoin (Départements, Postes, Demandes de recrutement), Recrutement (Offres
-  d'emploi, Candidats, Candidatures), Embauche (Propositions d'embauche, Employés),
-  Contrats et onboarding (Contrats, Affectations, Onboardings, Documents).
-
-Ce que je veux
-Un chatbot assistant, affiché sur toutes les pages du panel Filament, qui guide l'utilisateur
-dans l'application. Pour l'instant il explique seulement : le workflow, les statuts, qui fait
-quoi et où cliquer. Il n'a PAS accès à la base de données.
-
-Fonctionnement attendu
-1. Un bouton flottant en bas à droite ouvre un panneau latéral à droite avec la discussion.
-2. Composant Livewire (app/Livewire/AssistantRh.php + vue Blade), affiché via un render hook
-   Filament (PanelsRenderHook::BODY_END), uniquement pour un utilisateur connecté.
-3. Un service app/Services/Assistant/AssistantService.php envoie la conversation à l'IA en
-   réutilisant la config services.openai.*.
-4. Le prompt système contient :
-   - le guide du projet, lu depuis un fichier modifiable resources/assistant/guide.md,
-     sans toucher au PHP : parcours demande → validations → offre → candidatures → proposition
-     → acceptation → contrat → signature → onboarding, les statuts de chaque étape, les rôles ;
-   - le rôle de l'utilisateur connecté et la page où il se trouve (nom du menu, pas l'URL brute) ;
-   - les règles : répondre en français, court et concret, indiquer le menu à ouvrir
-     (ex. « Recrutement > Candidatures »), ne jamais inventer de fonctionnalité, dire « je ne
-     sais pas » si besoin, ne jamais prendre de décision de recrutement.
-5. L'historique de la conversation est gardé en session, donc il survit au changement de page.
-   Seuls les 10 derniers messages sont envoyés à l'IA. Un bouton permet d'effacer la discussion.
-6. Les réponses sont rendues en Markdown sécurisé (HTML désactivé).
-
-Contraintes importantes
-- L'appel à l'API se fait uniquement côté serveur. Aucune clé ni appel depuis le JavaScript.
-- Pas de compilation Tailwind possible : style avec un bloc <style> inline et des classes
-  préfixées (ex. sirh-assistant-*), compatible mode clair et sombre de Filament.
-- Limiter les abus : question de 500 caractères maximum, limite de requêtes par utilisateur
-  par minute (RateLimiter), timeout de 45 s.
-- Ne jamais afficher d'erreur technique à l'utilisateur : message simple, et report() de
-  l'exception dans les logs.
-- Retirer les balises <think>...</think> que certains modèles ajoutent à leur réponse.
-- Messages de la conversation protégés avec #[Locked] pour qu'un client ne puisse pas les modifier.
-- Un mode simulation (ASSISTANT_FAKE=true dans .env) qui renvoie une réponse fixe sans appeler l'API.
-- Aucun appel réseau dans les tests : utiliser Http::fake().
-
-Livrables
-- Un script bash idempotent (on peut le relancer sans rien dupliquer ni casser) qui crée tous
-  les fichiers et ajoute le render hook dans AdminPanelProvider seulement s'il n'y est pas déjà.
-- Le contenu de resources/assistant/guide.md, rédigé à partir de ce contexte, avec une mention
-  pour que je relise et corrige ce qui n'est pas sûr.
-- Des tests PHPUnit : réponse normale, erreur API gérée proprement, balises <think> retirées,
-  limite de requêtes, historique conservé en session.
-- À la fin, la liste des commandes à lancer (php artisan config:clear, view:clear, tests).
-
-Avant de coder, regarde la structure existante du projet et réutilise ses conventions (noms en
-français, un dossier par bloc, tests dans tests/Feature/). Ne modifie pas les fichiers des
-autres blocs. Dis-moi clairement quels fichiers partagés tu modifies.
+pouvons nous avoir cette sortie Offre      : Technicien réseau — 2 postes — Antananarivo — CDI — 1 200 000 Ar/mois
+Candidat   : Fanilo Ratsimbazafy, fanilo.r@exemple.mg, 0342200011
+Note       : 13,5 / 20 — "Bonnes bases, à renforcer sur la sécurité"
+Proposition: salaire 1 100 000 Ar, début le 2026-12-01, statut "envoyée" dans ce projet

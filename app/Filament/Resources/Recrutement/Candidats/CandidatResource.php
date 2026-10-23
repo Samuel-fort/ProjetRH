@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Recrutement\Candidats;
 
+use App\Filament\Actions\SafeDeleteAction;
 use App\Filament\Resources\Recrutement\Candidats\Pages\CreateCandidat;
 use App\Filament\Resources\Recrutement\Candidats\Pages\EditCandidat;
 use App\Filament\Resources\Recrutement\Candidats\Pages\ListCandidats;
@@ -81,7 +82,7 @@ class CandidatResource extends Resource
                 // counts('candidatures') ajoute le nombre de candidatures sans requête par ligne.
                 TextColumn::make('candidatures_count')->label('Candidatures')->counts('candidatures')->sortable(),
             ])
-            ->recordActions([EditAction::make()])
+            ->recordActions([EditAction::make(), SafeDeleteAction::make()])
             ->defaultSort('nom');
     }
 

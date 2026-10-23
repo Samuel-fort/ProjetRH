@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Recrutement\OffreEmplois;
 
 use App\Enums\StatutOffre;
+use App\Filament\Actions\SafeDeleteAction;
 use App\Filament\Resources\Recrutement\OffreEmplois\Pages\CreateOffreEmploi;
 use App\Filament\Resources\Recrutement\OffreEmplois\Pages\EditOffreEmploi;
 use App\Filament\Resources\Recrutement\OffreEmplois\Pages\ListOffreEmplois;
@@ -85,7 +86,7 @@ class OffreEmploiResource extends Resource
             ->filters([
                 SelectFilter::make('statut')->label('Statut')->options(StatutOffre::class),
             ])
-            ->recordActions([EditAction::make()])
+            ->recordActions([EditAction::make(), SafeDeleteAction::make()])
             ->defaultSort('created_at', 'desc');
     }
 

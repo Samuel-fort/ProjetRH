@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Recrutement\Candidats\Pages;
 
+use App\Filament\Actions\SafeDeleteAction;
 use App\Filament\Resources\Recrutement\Candidats\CandidatResource;
-use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditCandidat extends EditRecord
@@ -12,6 +12,6 @@ class EditCandidat extends EditRecord
 
     protected function getHeaderActions(): array
     {
-        return [DeleteAction::make()];
+        return [SafeDeleteAction::make()];
     }
 }

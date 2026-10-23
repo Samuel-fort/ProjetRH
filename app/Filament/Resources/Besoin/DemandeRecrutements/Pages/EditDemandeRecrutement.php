@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Besoin\DemandeRecrutements\Pages;
 
+use App\Filament\Actions\SafeDeleteAction;
 use App\Filament\Resources\Besoin\DemandeRecrutements\DemandeRecrutementResource;
 use App\Models\Besoin\Poste;
-use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditDemandeRecrutement extends EditRecord
@@ -15,7 +15,7 @@ class EditDemandeRecrutement extends EditRecord
     {
         // Visible seulement si la Policy autorise la suppression (brouillon de l'auteur).
         return [
-            DeleteAction::make(),
+            SafeDeleteAction::make(),
         ];
     }
 

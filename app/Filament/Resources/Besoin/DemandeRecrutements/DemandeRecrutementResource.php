@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Besoin\DemandeRecrutements;
 
 use App\Enums\MotifDemande;
 use App\Enums\StatutDemande;
+use App\Filament\Actions\SafeDeleteAction;
 use App\Filament\Resources\Besoin\DemandeRecrutements\Pages\CreateDemandeRecrutement;
 use App\Filament\Resources\Besoin\DemandeRecrutements\Pages\EditDemandeRecrutement;
 use App\Filament\Resources\Besoin\DemandeRecrutements\Pages\ListDemandeRecrutements;
@@ -140,6 +141,7 @@ class DemandeRecrutementResource extends Resource
                 ViewAction::make(),
                 EditAction::make(),
                 ...self::actionsWorkflow(),
+                SafeDeleteAction::make(),
             ]);
     }
 

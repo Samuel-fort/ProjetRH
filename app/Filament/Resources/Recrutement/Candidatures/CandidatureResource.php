@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Recrutement\Candidatures;
 
 use App\Enums\StatutCandidature;
+use App\Enums\TypeContrat;
+use App\Filament\Actions\SafeDeleteAction;
 use App\Filament\Resources\Recrutement\Candidatures\Pages\ListCandidatures;
 use App\Filament\Resources\Recrutement\Candidatures\Pages\ViewCandidature;
 use App\Models\Recrutement\Candidature;
@@ -13,6 +15,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\ViewAction;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -20,9 +23,8 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Filament\Notifications\Notification;
-use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use UnitEnum;
 
 /**
@@ -54,6 +56,18 @@ class CandidatureResource extends Resource
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
+            Section::make('Résumé du recrutement')->schema([
+                TextEntry::make('resume_recrutement')
+                    ->hiddenLabel()
+                    ->state(fn (Candidature $record): string => self::resumeRecrutement($record))
+                    ->formatStateUsing(fn (string $state): string => nl2br(e($state)))
+                    ->html()
+                    ->copyable()
+                    ->copyableState(fn (Candidature $record): string => self::resumeRecrutement($record))
+                    ->copyMessage('Résumé copié')
+                    ->columnSpanFull(),
+            ]),
+
             Section::make('Candidature')->columns(3)->schema([
                 TextEntry::make('candidat.nom_complet')->label('Candidat'),
                 TextEntry::make('candidat.email')->label('Email'),
@@ -141,6 +155,59 @@ class CandidatureResource extends Resource
         return is_array($state) ? implode("\n", $state) : (string) ($state ?? '');
     }
 
+    private static function resumeRecrutement(Candidature $record): string
+    {
+        $record->loadMissing([
+            'candidat',
+            'offreEmploi.demandeRecrutement.poste',
+            'offreEmploi.demandeRecrutement.departement',
+            'propositionEmbauche',
+        ]);
+
+        $demande = $record->offreEmploi?->demandeRecrutement;
+        $proposition = $record->propositionEmbauche;
+        $poste = $demande?->poste?->intitule ?? $record->offreEmploi?->titre ?? 'Offre inconnue';
+        $nombre = $demande?->nombre;
+        $lieu = $proposition?->lieu_travail ?: $demande?->departement?->nom ?: 'Lieu non renseigné';
+        $budget = $demande?->budget;
+        $ligneOffre = 'Offre      : '.$poste;
+
+        if ($nombre !== null) {
+            $ligneOffre .= ' — '.$nombre.' '.((int) $nombre === 1 ? 'poste' : 'postes');
+        }
+
+        // Les contrats générés après acceptation sont actuellement créés en CDI par ContratService.
+        $ligneOffre .= ' — '.$lieu.' — '.TypeContrat::Cdi->label();
+        $ligneOffre .= $budget === null
+            ? ' — budget non renseigné'
+            : ' — '.number_format((float) $budget, 0, ',', ' ').' Ar/mois';
+
+        $candidat = $record->candidat;
+        $coordonnees = array_filter([$candidat->email, $candidat->telephone]);
+        $ligneCandidat = 'Candidat   : '.$candidat->prenom.' '.$candidat->nom;
+
+        if ($coordonnees !== []) {
+            $ligneCandidat .= ', '.implode(', ', $coordonnees);
+        }
+
+        $evaluation = $record->evaluations()->latest('created_at')->first();
+        $ligneNote = $evaluation === null
+            ? 'Note       : Aucune évaluation enregistrée'
+            : 'Note       : '.rtrim(rtrim(number_format((float) $evaluation->note, 1, ',', ' '), '0'), ',').' / 20';
+
+        if ($evaluation?->commentaire) {
+            $ligneNote .= ' — "'.$evaluation->commentaire.'"';
+        }
+
+        $ligneProposition = $proposition === null
+            ? 'Proposition: Aucune proposition d’embauche'
+            : 'Proposition: salaire '.number_format((float) $proposition->salaire, 0, ',', ' ')
+                .' Ar, début le '.$proposition->date_debut?->format('Y-m-d')
+                .', statut "'.mb_strtolower($proposition->statut->getLabel()).'"';
+
+        return implode("\n", [$ligneOffre, $ligneCandidat, $ligneNote, $ligneProposition]);
+    }
+
     public static function table(Table $table): Table
     {
         return $table
@@ -186,7 +253,7 @@ class CandidatureResource extends Resource
                         }),
                 ]),
             ])
-            ->recordActions([ViewAction::make()->label('Ouvrir')])
+            ->recordActions([ViewAction::make()->label('Ouvrir'), SafeDeleteAction::make()])
             ->defaultSort('date_candidature', 'desc');
     }
 
