@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Embauche\Employes;
 
 use App\Enums\StatutEmploye;
+use App\Filament\Actions\SafeDeleteAction;
 use App\Filament\Resources\Embauche\Employes\Pages\CreateEmploye;
 use App\Filament\Resources\Embauche\Employes\Pages\EditEmploye;
 use App\Filament\Resources\Embauche\Employes\Pages\ListEmployes;
@@ -72,7 +73,7 @@ class EmployeResource extends Resource
             ->filters([
                 SelectFilter::make('statut')->label('Statut')->options(StatutEmploye::class),
             ])
-            ->recordActions([EditAction::make()->label('Ouvrir')])
+            ->recordActions([EditAction::make()->label('Ouvrir'), SafeDeleteAction::make()])
             ->defaultSort('matricule', 'desc');
     }
 

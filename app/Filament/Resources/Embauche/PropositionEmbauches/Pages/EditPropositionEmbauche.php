@@ -3,13 +3,13 @@
 namespace App\Filament\Resources\Embauche\PropositionEmbauches\Pages;
 
 use App\Enums\StatutProposition;
+use App\Filament\Actions\SafeDeleteAction;
 use App\Filament\Resources\Embauche\PropositionEmbauches\PropositionEmbaucheResource;
 use App\Services\Embauche\GenererContratPdf;
 use App\Services\Embauche\PropositionService;
 use Closure;
 use DomainException;
 use Filament\Actions\Action;
-use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Storage;
@@ -73,7 +73,7 @@ class EditPropositionEmbauche extends EditRecord
                     }
                 }),
 
-            DeleteAction::make()->visible(fn () => $this->record->statut === StatutProposition::Brouillon),
+            SafeDeleteAction::make()->visible(fn () => $this->record->statut === StatutProposition::Brouillon),
         ];
     }
 

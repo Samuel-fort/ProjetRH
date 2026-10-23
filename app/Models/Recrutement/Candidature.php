@@ -3,6 +3,7 @@
 namespace App\Models\Recrutement;
 
 use App\Enums\StatutCandidature;
+use App\Models\Embauche\PropositionEmbauche;
 use App\Observers\Recrutement\CandidatureObserver;
 use App\Policies\Recrutement\CandidaturePolicy;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Candidature = un candidat qui postule à une offre. C'est l'objet central du Bloc 2 :
@@ -59,5 +61,10 @@ class Candidature extends Model
     public function historiques(): HasMany
     {
         return $this->hasMany(CandidatureHistorique::class)->latest('created_at');
+    }
+
+    public function propositionEmbauche(): HasOne
+    {
+        return $this->hasOne(PropositionEmbauche::class)->latestOfMany();
     }
 }
